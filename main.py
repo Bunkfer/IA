@@ -74,7 +74,7 @@ def main():
     # --------------------------------------
     # Naive-bayes
     # --------------------------------------
-    # model_NBayes = Base_Model(NaiveBayesModel(), dataset)
+    model_NBayes = Base_Model(NaiveBayesModel(), dataset)
 
     # --------------------------------------
     # Desicion Tree
@@ -94,7 +94,7 @@ def main():
     # --------------------------------------
     # Redes Neuronales
     # --------------------------------------
-    model_CNN = Base_Model(CNNModel(), dataset)
+    # model_CNN = Base_Model(CNNModel(), dataset)
 
 
 if __name__ == "__main__":

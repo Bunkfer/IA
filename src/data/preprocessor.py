@@ -1,10 +1,12 @@
 import pandas as pd
+import numpy as np
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 
 from imblearn.over_sampling import SMOTE
+
 
 class DataPreprocessor:
 
@@ -17,7 +19,7 @@ class DataPreprocessor:
         preprocessor_visualizer=None,
         preprocessor_report_enable=False,
         balance_dataset: bool = False,
-        smote_alg:bool= False,
+        smote_alg: bool = False,
         balance_ratio: int = 3,
         minimum_minority_samples: int = 0,
     ):
@@ -94,7 +96,7 @@ class DataPreprocessor:
             self.y,
             test_size=self.test_size,
             random_state=self.random_state,
-            stratify=self.y,  #Esta propiedad permite hacer una separacion por clases
+            stratify=self.y,  # Esta propiedad permite hacer una separacion por clases
         )
 
     def scale_data(self) -> None:
@@ -121,11 +123,7 @@ class DataPreprocessor:
             index=self.X_test.index,
         )
 
-    def prepare(
-        self,
-        columns_to_remove: list = None,
-        scale: bool = False
-    ) -> tuple:
+    def prepare(self, columns_to_remove: list = None, scale: bool = False) -> tuple:
 
         if columns_to_remove:
             self.remove_columns(columns_to_remove)
@@ -178,9 +176,14 @@ class DataPreprocessor:
             raise RuntimeError("Data has not been split.")
 
     def impute_missing_values(self) -> None:
-        """Replace missing numerical values with the median."""
+        """Replace infinite and missing numerical values with the median."""
 
-        self._validate_features_and_target()
+        self._validate_split_data()
+
+        # Convert infinite values to NaN
+        self.X_train = self.X_train.replace([np.inf, -np.inf], np.nan)
+
+        self.X_test = self.X_test.replace([np.inf, -np.inf], np.nan)
 
         self.imputer = SimpleImputer(strategy="median")
 
@@ -200,7 +203,7 @@ class DataPreprocessor:
             columns=self.X_test.columns,
             index=self.X_test.index,
         )
-    
+
     def export_preprocessing_results(self) -> None:
         """Export preprocessing results to Excel."""
 
@@ -210,23 +213,19 @@ class DataPreprocessor:
         if self.balance_dataset:
 
             self.preprocessor_visualizer.write_dataframe(
-                self.X_train_balanced,
-                sheet_name="X_train_balanced"
+                self.X_train_balanced, sheet_name="X_train_balanced"
             )
 
             self.preprocessor_visualizer.write_dataframe(
-                self.y_train_balanced.to_frame(),
-                sheet_name="y_train_balanced"
+                self.y_train_balanced.to_frame(), sheet_name="y_train_balanced"
             )
 
             self.preprocessor_visualizer.write_dataframe(
-                self.X_test_balanced,
-                sheet_name="X_test_balanced"
+                self.X_test_balanced, sheet_name="X_test_balanced"
             )
 
             self.preprocessor_visualizer.write_dataframe(
-                self.y_test_balanced.to_frame(),
-                sheet_name="y_test_balanced"
+                self.y_test_balanced.to_frame(), sheet_name="y_test_balanced"
             )
 
     def balance_training_data(self) -> None:
@@ -284,31 +283,23 @@ class DataPreprocessor:
                 f"Requested ratio: 1:{self.balance_ratio}"
             )
 
-        minority_data = train_data[
-            train_data[self.target_column] == minority_class
-        ]
+        minority_data = train_data[train_data[self.target_column] == minority_class]
 
-        majority_data = train_data[
-            train_data[self.target_column] == majority_class
-        ]
+        majority_data = train_data[train_data[self.target_column] == majority_class]
 
         majority_data = majority_data.sample(
             n=desired_majority_count,
             random_state=self.random_state,
         )
 
-        balanced_data = pd.concat(
-            [minority_data, majority_data]
-        )
+        balanced_data = pd.concat([minority_data, majority_data])
 
         balanced_data = balanced_data.sample(
             frac=1,
             random_state=self.random_state,
         )
 
-        self.X_train_balanced = balanced_data.drop(
-            columns=[self.target_column]
-        )
+        self.X_train_balanced = balanced_data.drop(columns=[self.target_column])
 
         self.y_train_balanced = balanced_data[self.target_column]
 
@@ -334,41 +325,21 @@ class DataPreprocessor:
             random_state=self.random_state,
         )
 
-        X_resampled, y_resampled = smote.fit_resample(
-            self.X_train,
-            self.y_train
-        )
+        X_resampled, y_resampled = smote.fit_resample(self.X_train, self.y_train)
 
-        self.X_train_balanced = pd.DataFrame(
-            X_resampled,
-            columns=self.X_train.columns
-        )
+        self.X_train_balanced = pd.DataFrame(X_resampled, columns=self.X_train.columns)
 
-        self.y_train_balanced = pd.Series(
-            y_resampled,
-            name=self.target_column
-        )
+        self.y_train_balanced = pd.Series(y_resampled, name=self.target_column)
 
         balanced_data = pd.concat(
-            [
-                self.X_train_balanced,
-                self.y_train_balanced
-            ],
-            axis=1
+            [self.X_train_balanced, self.y_train_balanced], axis=1
         )
 
-        balanced_data = balanced_data.sample(
-            frac=1,
-            random_state=self.random_state
-        )
+        balanced_data = balanced_data.sample(frac=1, random_state=self.random_state)
 
-        self.X_train_balanced = balanced_data.drop(
-            columns=[self.target_column]
-        )
+        self.X_train_balanced = balanced_data.drop(columns=[self.target_column])
 
-        self.y_train_balanced = balanced_data[
-            self.target_column
-        ]
+        self.y_train_balanced = balanced_data[self.target_column]
 
     def balance_testing_data(self) -> None:
         """Create a balanced version of the testing dataset."""
@@ -412,35 +383,25 @@ class DataPreprocessor:
             print("Balanced test dataset was not created.")
             return
 
-        minority_data = test_data[
-            test_data[self.target_column] == minority_class
-        ]
+        minority_data = test_data[test_data[self.target_column] == minority_class]
 
-        majority_data = test_data[
-            test_data[self.target_column] == majority_class
-        ]
+        majority_data = test_data[test_data[self.target_column] == majority_class]
 
         majority_data = majority_data.sample(
             n=desired_majority_count,
             random_state=self.random_state,
         )
 
-        balanced_data = pd.concat(
-            [minority_data, majority_data]
-        )
+        balanced_data = pd.concat([minority_data, majority_data])
 
         balanced_data = balanced_data.sample(
             frac=1,
             random_state=self.random_state,
         )
 
-        self.X_test_balanced = balanced_data.drop(
-            columns=[self.target_column]
-        )
+        self.X_test_balanced = balanced_data.drop(columns=[self.target_column])
 
-        self.y_test_balanced = balanced_data[
-            self.target_column
-        ]
+        self.y_test_balanced = balanced_data[self.target_column]
 
     def _apply_smote_testing(self) -> None:
         smote = SMOTE(
@@ -448,38 +409,16 @@ class DataPreprocessor:
             random_state=self.random_state,
         )
 
-        X_resampled, y_resampled = smote.fit_resample(
-            self.X_test,
-            self.y_test
-        )
+        X_resampled, y_resampled = smote.fit_resample(self.X_test, self.y_test)
 
-        self.X_test_balanced = pd.DataFrame(
-            X_resampled,
-            columns=self.X_test.columns
-        )
+        self.X_test_balanced = pd.DataFrame(X_resampled, columns=self.X_test.columns)
 
-        self.y_test_balanced = pd.Series(
-            y_resampled,
-            name=self.target_column
-        )
+        self.y_test_balanced = pd.Series(y_resampled, name=self.target_column)
 
-        balanced_data = pd.concat(
-            [
-                self.X_test_balanced,
-                self.y_test_balanced
-            ],
-            axis=1
-        )
+        balanced_data = pd.concat([self.X_test_balanced, self.y_test_balanced], axis=1)
 
-        balanced_data = balanced_data.sample(
-            frac=1,
-            random_state=self.random_state
-        )
+        balanced_data = balanced_data.sample(frac=1, random_state=self.random_state)
 
-        self.X_test_balanced = balanced_data.drop(
-            columns=[self.target_column]
-        )
+        self.X_test_balanced = balanced_data.drop(columns=[self.target_column])
 
-        self.y_test_balanced = balanced_data[
-            self.target_column
-        ]
+        self.y_test_balanced = balanced_data[self.target_column]

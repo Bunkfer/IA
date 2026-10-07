@@ -19,24 +19,15 @@ class ModelEvaluator:
         """Calculate classification performance metrics."""
 
         results = {
-            "accuracy": accuracy_score(
-                self.y_true,
-                self.y_pred
-            ),
+            "accuracy": accuracy_score(self.y_true, self.y_pred),
             "precision": precision_score(
-                self.y_true,
-                self.y_pred,
-                zero_division=0
+                self.y_true, self.y_pred, average="weighted", zero_division=0
             ),
             "recall": recall_score(
-                self.y_true,
-                self.y_pred,
-                zero_division=0
+                self.y_true, self.y_pred, average="weighted", zero_division=0
             ),
             "f1_score": f1_score(
-                self.y_true,
-                self.y_pred,
-                zero_division=0
+                self.y_true, self.y_pred, average="weighted", zero_division=0
             ),
         }
 
@@ -45,10 +36,7 @@ class ModelEvaluator:
     def confusion_matrix(self):
         """Generate the confusion matrix."""
 
-        return confusion_matrix(
-            self.y_true,
-            self.y_pred
-        )
+        return confusion_matrix(self.y_true, self.y_pred)
 
     def print_results(self) -> None:
         """Print evaluation metrics."""

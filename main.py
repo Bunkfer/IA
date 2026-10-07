@@ -74,27 +74,32 @@ def main():
     # --------------------------------------
     # Naive-bayes
     # --------------------------------------
-    model_NBayes = Base_Model(NaiveBayesModel(), dataset)
+    if naive_enable:
+        model_NBayes = Base_Model(NaiveBayesModel(), dataset)
 
     # --------------------------------------
     # Desicion Tree
     # --------------------------------------
-    # model_DTree = Base_Model(DecisionTreeModel(), dataset)
+    if desicion_enable:
+        model_DTree = Base_Model(DecisionTreeModel(), dataset)
 
     # --------------------------------------
     # Random Forest
     # --------------------------------------
-    # model_RForest = Base_Model(RandomForestModel(), dataset)
+    if random_enable:
+        model_RForest = Base_Model(RandomForestModel(), dataset)
 
     # --------------------------------------
     # SVM
     # --------------------------------------
-    # model_SVM = Base_Model(SVMModel(), dataset)
+    if svm_enable:
+        model_SVM = Base_Model(SVMModel(), dataset)
 
     # --------------------------------------
     # Redes Neuronales
     # --------------------------------------
-    # model_CNN = Base_Model(CNNModel(), dataset)
+    if cnn_enable:
+        model_CNN = Base_Model(CNNModel(), dataset)
 
 
 if __name__ == "__main__":

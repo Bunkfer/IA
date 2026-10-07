@@ -26,6 +26,32 @@ El proyecto está diseñado para trabajar con diferentes algoritmos de clasifica
 
 La estructura permite incorporar posteriormente otros modelos manteniendo una interfaz común.
 
+## Base de datos
+
+En power sheel intalamos el cli de aws, e instalamos la dependencia. 
+
+```bash
+irm https://awscli.amazonaws.com/v2/install.ps1 | iex
+```
+
+Cuando se finalize la instalacion, cerramos el powershell y lo abimos nuevmante, y confirmamos si la instalacion fue hecha correctamente.
+
+```bash
+aws --version
+```
+
+Ahora revisamos los archivos disponibles.
+
+```bash
+aws s3 ls "s3://cse-cic-ids2018/Processed Traffic Data for ML Algorithms/" --no-sign-request
+```
+
+Podemos descargar todos los archivos, en este caso solo descargaremos uno de ellos en la carptea de data.
+
+```bash
+aws s3 cp "s3://cse-cic-ids2018/Processed Traffic Data for ML Algorithms/Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv" "C:\OnedriveOut\Doctorado\Tesis\Programming\Test\data\" --no-sign-request
+```
+
 ## Estructura
 
 El código está organizado de forma modular utilizando clases y separando las principales responsabilidades:

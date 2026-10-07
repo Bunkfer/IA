@@ -9,8 +9,11 @@ El orden de las columnas debe ser el mismo al entrenar y predecir.
 """
 
 import numpy as np
-import tensorflow as tf
+from config import cnn_enable
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+if cnn_enable:
+    import tensorflow as tf
 
 
 class CNNModel:

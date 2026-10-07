@@ -9,17 +9,13 @@ class Base_Model:
         self.model = model
         self.dataset = dataset
 
-        """print("\nRaw data")
-        self.base_train(
-            dataset.X_train,
-            dataset.y_train
-        )
-        self.base_evaluator()"""
+        print("\nRaw data")
+        self.base_train(dataset.X_train, dataset.y_train)
+        self.base_evaluator()
 
         if balance_dataset:
 
             print("\nBalanced data")
-
             self.base_train(dataset.X_train_balanced, dataset.y_train_balanced)
             self.base_evaluator()
 
